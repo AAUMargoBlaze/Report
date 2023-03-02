@@ -7,8 +7,8 @@ It should be noted that for many use cases, we will be drawing from real world a
 algorithms there already exist solutions - our goal will not be to implement them ourselves, but to provide a platform
 where they can be executed.
 For example, in~\ref{subsec:naive-pathfinding} we cover our need for a pathfinding algorithm, here we are referring to
-being able to build a domain where the information can exist, in reality our implementation would simply use an
-existing search algorithm given the structure that the user has created.
+being able to build the structure that describes the graph, in reality our implementation would simply use an
+existing search algorithm given the aforementioned structure.
 
 \subsection{Minimum Viable Product}\label{subsec:minimum-viable-product}
 For the language to be usable it must implement basic types and operations, as the focus of the language, graphs must
@@ -24,6 +24,13 @@ advantage of supported functionalities, while still having the ability to build 
 \end{figure}
 
 Figure~\ref{fig:example_basic_graph} covers the three types of relationships we are expecting to come across.
+\begin{itemize}
+    \item A directed relationship from one node to another
+    \item A bidirectional (or possibly undirected) relationship
+    \item A node that exists with no relationships
+\end{itemize}
+The last relationship is an important feature to keep in mind when choosing how we want to represent relationships, as
+we must remember that nodes should be able to exist without them.
 Our first graph based feature would naturally be to find some way to visualize the graph that we have built, similar to
 the generated figure.
 
@@ -39,7 +46,7 @@ navigation and optimisation.
 \end{figure}
 
 Figure~\ref{fig:example_pathfinding_graph} defines a graph that has a starting node and a goal node, with edges
-simulating the cost of traversing between nodes.
+representing the cost of traversing between nodes.
 Our intent when implementing pathfinding support is to provide a framework where a user can build such a graph, and
 given an arbitrary start node, goal node, and algorithm, will be able to retrieve the cost and path that is outputted by
 the algorithm.
@@ -126,6 +133,13 @@ primary concern is with the process of overlaying one graph across another.
 This includes an additional property that we may build traversal optimisations which result in the heuristics graph
 becoming a subset of the graph that the algorithm is being applied to.
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=12cm]{figures/example_graphs/informed_pathfinding.gv}
+    \caption{An example of a corresponding heuristics graph, here an informed search is likely to choose E over D as it lowers the heuristic more}
+    \label{fig:example_heuristic_graph}
+\end{figure}
+
 \subsubsection{Bayesian Networks}
 Bayesian networks are a probabilistic model that allow users to make analysis of how events affect each other.
 Similar to CSPs, this use case would have nodes representing a specific domain of values (truth tables in this case) -
@@ -176,7 +190,7 @@ The features as a rough overview are as follows:
 
 We can also list the supplementary features we have outlined:
 \begin{itemize}
-    \item Graphs that may overlay over each other for multidimensional algorithms
+    \item Graphs that may overlay over each other for algorithms that traverse multiple graphs at the same time
     \item Fixed domain graphs when specific types of domains are expected
     \item Hidden nodes that are programmatically built with the intention of not being accessed directly
     \item Nodes that define their own functionality, perhaps even running their own multithreaded operations
