@@ -1,49 +1,96 @@
-The most visible part of any language is its syntax.
+The most visible part of any language is its syntax. Each of us has a different background in terms of programming language
+experience and preferences. Inadvartently this will introduce some bias in our decision making, but our distinct preferences
+should counteract each other's biases.
 
-In this section we will try to reach a conclusion for what operations we would like to implement and the syntax
-that we believe they should be represented by.
+Moreover, basing our language on exisiting languages, may be somewhat counterproductive. Because on one hand, creating a
+language that offers some familairty to experienced programmers is clearly a benefit. However, following existing convention
+defeats the purpose of the project i.e: creating a language designed around graphs. This was the mindset we have had
+when setting out to design the syntax of Lattice.
 
-Our end goal will be to have a guideline for what operations are represented as, though they may have to be tweaked
-during implementation if we find issues.
+Before getting into the concrete decisions we made, it is important to elaborate, which criteria we used to evaluate
+the elements of the syntax.
 
-\bigskip
+\textbf{Verbosity and Obscurity}
+Verbosity and obscurity are two opposing characteristics when designing the language.
+We could design a language that
+relies heavily on English, making it accessible for new developers.
+However, incessant verbosity may slow down users when developing code.
 
-\noindent
-When defining syntax we try to keep the following in mind:
+Conversely, relying on obscure and arbitrary (but shorter) notations will
+steepen the learning curve and may reduce readability.
 
-\noindent
-\textbf{Popularity} \- \textit{do other languages use this notation?}
-
-If the notation is already popular then it will be less confusing for experienced programmers to learn
-
-\noindent
-\textbf{Verbosity} \- \textit{how obvious is the operator?}
-
-If we create notation that doesn't feel natural, it might lead to a lot of unnecessary documentation reading
-
-\noindent
-\textbf{Obscurity} \- \textit{is the operator too similar to existing operators?}
-
-If so, programmers may be confused what is occurring in existing code, causing it to take longer to debug
+In general, if we imagine the problem as a curve between verbosity and obscurity, we have fallen closer to
+obscure choices with our decisions.
+The reason for this is that we had to have come up with various, previously
+non-existent operators, and built-in functions working on a graph.
+We, as a group also have a subjective preference for shorter, more obscure notation, the idea being that
+after the initial learning period, its benefits offset the drawbacks.
 
 \subsection{Ambigouty in Ownership and Operation}
-context vs explicit operations.
+The main problem we have immediately encountered was ambigoutiy. Consider the following questions:
+
+\begin{enumerate}
+    \item Can a node be added to two graphs?
+    \item Can an edge exist between nodes belonging to different graphs?
+\end{enumerate}
+
+Suppose we allow the above behaviour, which we do intend to, as we wish to create a flexible language.
+The desired  operators are to be detailed later, but one of them is an operator that returns a list of edges belonging to a node.
+If we were to apply said operator on a node that belongs to two graphs, and has edges within both graphs, the
+operator would work amigously.
+
+Because it may return any of the following:
+\begin{enumerate}
+    \item The operator returns the edges defined within graph 1
+    \item The operator returns the edges defined withing graph 2
+    \item The operator returns the edges belonging to both graphs.
+\end{enumerate}
+Each of these behaviours are equally valid.
+Moreover depending on the context, the user may wish to use any one of them.
+The obvious solution is to split the operator into three distinct operators, or expand it with a graph parameter.
+However, if we consider that this is a single example of the problem, and the actual issue is systematic.
+Increasing the operator count or complexity only degrades the readability of the code, and introduces potential for bugs
+both when using the language, and when implementing it.
+
+Our proposed solution is therefore to treat graphs as contexts.
+Every operation performed inside a context, explicitly belongs to that graph.
+Technically, this approach forbids the previously stated questions.
+However, we intend to make  the graphs nestable.
+So while a node cannot belong to two distinct graphs, it may belong to both of them in the context of a parent graph.
+Therefore, if we want to get a list of the edges belonging to graph 1, connected to the node, we may perform the
+operation in the context of graph 1. If we want to return all the edges, we may perform it in the context of the parent
+graph.
 
 \subsection{Assignment and Types}
-The most simple operation we can perform is assignment, as we have chosen to build a strongly typed language, we will
-specify explicit definitions using the popular {type} {var_name} = {value}
+Before introducing, the core of Lattice - graphs, it is important to explicitly state basic functionality,
+such as variables and assignments.
+We have chosen to explicitly state the type of variable at declaration,
+following the form of: {type} {var_name} = {value}.
+
+We also settled on a set of primitive types we intend to implement, namely:
+\begin{itemize}
+    \item Integer - (int)
+    \item String - (string)
+    \item Boolean - (bool)
+    \item Float - (float)
+\end{itemize}
 
 \subsection{Branching}
-if else
+We have decided to implement the simplest form of branching, a simple if block, with no else or else if.
+In a normal situation, we would thrive to implement those controls as well, since they are widespread
+and are common quality of life tools.
+However, considering the nature of this project, we would rather focus on the graph oriented features.
+In terms of expressiveness, one may express an if-else structure with two if statements with the second one having
+the same boolean expression as the first one, but negated.
 
 \subsection{Graphs}
-include inheritance option.
-
+Graphs are the concept, around which the whole language is built around. Therefore the definition of graphs
+must be 
 \subsection{Nodes}
 ref and clone and immutability.
 
 
-\subsection{Unique Operators}
+\subsection{Operators}
 why we agree these obscure operators are fair tradeof
 
 \subsection{Edges}
