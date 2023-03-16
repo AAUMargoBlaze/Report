@@ -65,7 +65,7 @@ Moreover, depending on the context, the user may wish to use any one of them.
 The obvious solution is to split the operator into three distinct operators or expand it with a graph parameter.
 However, if we consider that this is a single example of the problem, and the actual issue is systematic,
 increasing the operator count or complexity only degrades the readability of the code and introduces the potential for bugs
-both when using the language, and when implementing it.
+both when using the language and when implementing it.
 
 Our proposed solution is therefore to treat graphs as contexts.
 Every operation performed inside a context, explicitly belongs to that graph.
@@ -143,8 +143,8 @@ Listing~\ref{lst:syntax_basic_graph_definition} generates the graph shown on fig
 
 The graph keyword, when binding the graph may seem unnecessary.
 However, a potential extension we have considered was inheritance.
-So in the future, one may define a specific type of graph.
-E.g.\ Tree or LinkedList, which conceptually are just restricted graphs.
+So in the future, one may define a specific type of graph
+e.g.\ Tree or LinkedList, which conceptually are just restricted graphs.
 
 The context of graphs may be reopened as well.
 So the snippet shown on listing~\ref{lst:syntax_basic_graph_definition}
@@ -286,8 +286,8 @@ As mentioned before, we introduce some obscure notation in our design.
 The reasoning is that we want to support operations that are generally either not supported in other languages
 or only supported via external libraries that are dependent on the language's own syntax.
 
-While we are not going to change the operator for adding two integers together (\lstinline{int1 + int2})
-We are going to create our own arbitrary notation for graph operations since it is a new territory.
+While we are not going to change the operator for adding two integers together (\lstinline{int1 + int2}),
+we are going to create our own arbitrary notation for graph operations since it is a new territory.
 
 For example, if we were to build an edge between two nodes,
 Lattice will provide the following built-in operators to do so:
