@@ -4,3 +4,5 @@
 out/
 
 master.log
+
+.DS_Store
