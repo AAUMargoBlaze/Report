@@ -1,0 +1,145 @@
+To specify some rules about how a program in Lattice should be composed, we have written the following context-free grammar, using Backus-Naur form.
+This grammar can then be used to build a parser and recognize valid Lattice programs and their structure.
+
+\subsubsection*{Global composition of a program}
+
+A program in Lattice would be a sequence of statements and function definitions.
+
+\begin{align*}
+    \mathit{Start} \rightarrow \{ \mathit{FunctionDef} \mid \mathit{Statement} \}
+\end{align*}
+
+Statements can be variable declarations, variable assignments, graph manipulation (i.e.\ opening a graph context to do operations), print statements, blocks of code in an if-else control structure or a while loop, or a return statement.
+
+\begin{align*}
+    \omit $\mathit{Statement}$ \hfil& \rightarrow \mathit{VarDecl} \\
+    & \mid \mathit{VarAssignOrGraphManip} \\
+    & \mid \mathit{PrintStatement} \\
+    & \mid \mathit{IfBlock} \\
+    & \mid \mathit{WhileBlock} \\
+    & \mid \mathit{ReturnStatement} \\
+\end{align*}
+
+\subsubsection*{Variable declaration}
+
+A variable is declared by writing its type followed by its name.
+After the variable declarations the statement can end with a semicolon or there can be a value assigned to the variable or graph context can be opened.
+This can also be done for a variable that has already been declared.
+
+\begin{align*}
+    \omit $\mathit{VarDecl}$ \hfil& \rightarrow \mathit{Type} \: \text{varId} \: \mathit{VarDeclTail} \\
+    \omit $\mathit{VarDeclTail}$ \hfil & \rightarrow \mathit{TailVarAssignOrGraphManip} \\
+    & \mid \text{semicolon} \\
+    \omit $\mathit{VarAssignOrGraphManip}$\hfil & \rightarrow \text{varId} \: \mathit{TailVarAssignOrGraphManip} \\
+    \omit $\mathit{TailVarAssignOrGraphManip}$ & \rightarrow \mathit{TailVarAssign} \\
+    & \mid  \mathit{TailGraphManip}\ \\
+    \omit $\mathit{Type}$ \hfil & \rightarrow \text{typeString} \\
+    & \mid \text{typeFloat} \\
+    & \mid \text{typeBool} \\
+    & \mid \text{typeInt}\\
+    & \mid \text{typeGraph} \\
+\end{align*} 
+
+\subsubsection*{Variable assignment and arithmetic expressions}
+To assign a value to a variable, the variable name needs to be followed by the assignment operator and then the assigned value, which can be a string, a boolean value, an arithmetic expression with variables, numbers and function calls or simply a function call, a number or another variable.
+
+\begin{align*}
+    \omit $\mathit{TailVarAssign}$ \hfil & \rightarrow \text{opAssign} \: \mathit{AssignVal} \: \text{semicolon} \\
+    \omit $\mathit{AssignVal}$ \hfil & \rightarrow \text{string} \\
+    & \mid \mathit{Expr} \\
+    & \mid \mathit{BoolVal}\\
+    \omit $\mathit{Expr}$ \hfil & \rightarrow \text{opSub} \: \mathit{Expr} \\
+    & \mid \mathit{Expr} \: \mathit{MulOp} \: \mathit{Expr} \\
+    & \mid \mathit{Expr} \: \mathit{AddOp} \: \mathit{Expr} \\
+    & \mid \text{leftParen}\: \mathit{Expr} \: \text{rightParen} \\
+    & \mid \mathit{Number} \\
+    & \mid \text{varId} \\
+    & \mid \mathit{FuncCall} \\
+    & \mid \text{KeywordFmap} \: \text{varId} \: \text{varId} \\
+    \omit $\mathit{BoolVal}$ \hfil & \rightarrow \text{keywordTrue} \\
+    & \mid \text{keywordFalse} \\
+    \omit $\mathit{Number}$ \hfil & \rightarrow \text{integer} \\
+    & \mid \text{floatLit} \\
+    \omit $\mathit{AddOp}$ \hfil & \rightarrow \text{opAdd} \\
+    & \mid \text{opSub} \\
+    \omit $\mathit{MulOp}$ \hfil & \rightarrow \text{opMult} \\
+    & \mid \text{opDiv} \\
+    & \mid \text{opRem} \\
+\end{align*}
+
+This definition of the grammar doesn't allow the precedence of arithmetic operations to be handled during the building of the parse tree.
+However, this is solved with the tool we used to implement our parser.
+
+\subsubsection*{Graph Manipulation}
+
+After having specified the graph context in which we want to work, we can do graph-specific operations as well as the other ones.
+
+\begin{align*}
+    \omit $\mathit{TailGraphManip}$ \hfil &\rightarrow \text{leftBrace} \: [\mathit{ListGraphOp}]  \: \text{rightBrace} \\
+    \omit $\mathit{ListGraphOp}$ \hfil &\rightarrow \mathit{graphOp} \: \mathit{ListGraphOp} \\
+    \omit $\mathit{GraphOp}$ \hfil &\rightarrow \mathit{AddRel}  \\
+    & \mid \mathit{AddClone} \\
+    & \mid \mathit{AddRef} \\
+    & \mid \mathit{Statement} \\
+    \omit $\mathit{AddRel}$ \hfil & \rightarrow \text{varId opRelLeft} \: \mathit{Number} \: \text{comma string opRelRight varId} \\
+    \omit $\mathit{AddClone}$ \hfil & \rightarrow \text{keywordClone varId semicolon} \\
+    \omit $\mathit{AddRef}$ \hfil & \rightarrow \text{keywordRef varId semicolon} \\
+\end{align*}
+
+\subsubsection*{Print statement}
+
+The print function is quite minimalist and can only be used for strings and variables, using the keyword $\texttt{print}$.
+
+\begin{align*}
+    \mathit{PrintStatement} \rightarrow \text{keywordPrint} \: (\text{varID} \mid \text{string}) \: \text{semicolon}
+\end{align*}
+
+\subsubsection*{If-else statement}
+
+The if-else statement structure is quite classic.
+After the \texttt{if} keyword, a boolean expression is specified between parenthesis and then the block of code to execute is written between curly brackets.
+The following else clause is optional.
+
+\begin{align*}
+    \omit $\mathit{IfBlock}$ \hfil &\rightarrow \mathit{IfClause} \: [\mathit{ElseClause}] \\
+    \omit $\mathit{IfClause}$ \hfil &\rightarrow \text{keywordIf} \: \text{leftParen} \: \mathit{BoolExpr} \: \text{rightParen} \: \text{leftBrace} \: \{ \mathit{statement}\} \: \text{rightBrace} \\
+    \omit $\mathit{ElseClause}$ \hfil &\rightarrow \text{keywordElse} \: \text{leftBrace} \: \{ \mathit{statement} \} \: \text{rightBrace} \\
+    \omit $\mathit{BoolExpr}$ \hfil &\rightarrow \text{opBNot} \: \mathit{BoolExpr} \\
+    & \mid \mathit{BoolExpr} \: \mathit{BoolOp} \: \mathit{BoolExpr} \\
+    & \mid \mathit{AssignVal} \: \mathit{CompOp} \: \mathit{AssignVal} \\
+    & \mid \text{leftParen} \: \mathit{BoolExpr} \: \text{RightParen} \\
+    & \mid \text{varID} \\
+    & \mid \mathit{FuncCall} \\
+    & \mid \mathit{BoolVal} \\
+    \omit $\mathit{BoolOp}$ \hfil &\rightarrow \text{opBAnd} \\
+    & \mid \text{opBOr} \\
+    \omit $\mathit{CompOp}$ \hfil & \rightarrow \text{opBEq} \\
+    & \mid \text{opBNeq} \\
+    & \mid \text{opBGrt} \\
+\end{align*}
+
+\subsubsection*{While loop}
+
+The while loop is also very basic.
+The statement starts with the keyword \texttt{while} followed by the condition for the loop and then the block of code to repeat.
+
+\begin{align*}
+\mathit{WhileBlock} &\rightarrow \text{keywordWhile} \: \text{leftParen} \: \mathit{BoolExpr} \: \text{rightParen} \: \text{leftBrace} \: \{ \mathit{statement}\} \: \text{rightBrace} \\
+\end{align*}
+
+\subsubsection*{Function definition and function call}
+
+Function definitions are introduced with the keyword $\texttt{def}$, followed by the name of the function, the types and names of the arguments and then the block of code executed by the function.
+A return statement is necessary to write a function, though this rule isn't enforced by the parser.
+The function can then be called in the context mentioned above, by writing the function name and the parameters
+
+\begin{align*}
+    \omit $\mathit{FuncDef}$ \hfil &\rightarrow \text{keywordDef} \: \mathit{Type} \: \text{varID leftParen} [\mathit{ListArgs}] \text{rightParen} \\
+    \hfil \text{leftBrace} \: \{ \mathit{statement} \} \: \text{rightBrace} \\
+    \omit $\mathit{ListArgs}$ \hfil &\rightarrow \mathit{Arg} \:  \mathit{TailListArgs} \\
+    \omit $\mathit{Arg}$ \hfil &\rightarrow \mathit{Type} \: \text{varId} \\
+    \omit $\mathit{TailListArgs}$ \hfil & \rightarrow \{ \text{comma} \: \mathit{Arg} \} \\
+    \omit $\mathit{ReturnStatement}$ \hfil &\rightarrow \text{keywordReturn} \: \mathit{AssignVal} \: \text{semicolon} \\
+    \omit $\mathit{FuncCall}$ \hfil &\rightarrow \: \text{varID leftParen} [\mathit{ListParam}] \: \text{rightParen} \\
+    \omit $\mathit{ListParam}$ \hfil &\rightarrow \mathit{varID} \:  \{ \text{comma} \: \mathit{varID} \} \\
+\end{align*}
