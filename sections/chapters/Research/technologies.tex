@@ -1,0 +1,44 @@
+In this section we will cover the technologies that will be involved in the final product.
+
+\subsubsection{Language Considerations}
+Before creating any code we have two language considerations to make.
+
+The first consideration is the language to use for the compiler;
+A good compiler tool is sufficiently portable that it is not difficult to use on any type of machine, historically this
+has always been an issue, as Operating Systems and computer architecture have a wide variety - therefore the language
+we use must be capable of creating executables for such a wide variety of systems.
+In addition, as development time is significant, we should choose a language that provides sufficient tooling to
+minimise unnecessary development time.
+
+Our choice of compiler language is C#, due to its wide system compatibility and support of the~\cite{ANTLR} which we
+will explore later.
+
+Next we have to decide what language to compile to, which entails similar considerations as the user will want an
+executable that requires minimal to no tweaking.
+For this decision we have taken a slightly different approach - in order to fully leverage the language that we compile
+to, we plan to support code injection - for this to remain convenient it's better to choose a language that more closely
+resembles the one we're translating from.
+
+In this train of thought, we have decided to compile to python, as it is a similarly high level language to the one
+we are designing.
+
+\subsubsection{Compiler Tools}
+Our choice for compiler tooling follows a similar logic to most development tools, we would like ease of use, while
+maintaining support for more complex functionality.
+
+The main decision that had to be made was between ANTLR and leveraging the toolkit that intellij
+provides~\cite{IntellijLanguage}.
+After choosing ANTLR, we reasoned that we could take advantage of the parse tree that ANTLR creates for both debugging
+and traversal properties - as ANTLR creates an easily readable image displaying how the grammar operates.
+Furthermore, ANTLR introduces with it the listener pattern~\cite[p18]{ANTLRReference} that we believe can be used later
+when we have to build Abstract Syntax Trees (ASTs).
+
+The document describing the syntax and semantics of a language is referred to as a ``grammar''\cite{Grammars}, both
+ANTLR and the intellij plugin are based on Extended Backus-Naur Form (EBNF), they also both include a feature for
+regex injection - allowing more well-formed rules to be written using fewer lines of code.
+
+\subsubsection{Language Tools}
+For the purpose of having usable output, we have decided to visualise the graphs we build.
+The tool we'll be using for this purpose is GraphViz\cite{GraphViz} - which takes advantage of standardised grammar
+called the DOT language, that can be used to consistently generate the same image.
+Graphviz has a python library so we can easily incorporate it into the print statements we define.
