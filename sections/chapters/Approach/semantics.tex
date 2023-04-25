@@ -1,0 +1,15 @@
+\subsubsection*{Variable declarations}
+
+A variable needs to have been declared before a value can be assigned to it.
+It also needs to be declared and have an assigned value if it is used in an expression for a boolean expression, a return statement or a variable assignment.
+
+\subsubsection*{Functions}
+
+A function needs to be defined before being called.
+There need to be a return statement accessible for any situation, that means that if the body of the function contains an if-else statement, if there is a return statement in the if lock of code, there also needs to be one in an else block of code.
+The value in the return statement needs to have the same type as the returned type of the function. %TODO : maybe not a semantic rule but a type rule
+
+\subsubsection*{Graph contexts}
+
+A variable needs to be referenced or cloned in a context before it can be used in relations or other statements in this context.
+A variable that has been declared in this context doesn't need to be cloned or referenced.
