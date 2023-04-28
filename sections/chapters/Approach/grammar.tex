@@ -45,6 +45,14 @@ Once the variable for which we are writing the statement is specified, the rest 
 \end{align*}
 \captionedgrammar{Rules for variable declaration}
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[height = 5cm]{figures/parse_trees/parseTree_varDecl}
+    \caption{The parse tree for the statements \texttt{int a;
+    str b = "oui";}}
+    \label{fig:parseTree_varDecl}
+\end{figure}
+
 \subsubsection*{Variable assignment and arithmetic expressions}
 To assign a value to a variable, the variable name needs to be followed by the assignment operator and then the assigned value, which can be a string, a boolean value, an arithmetic expression with variables, numbers and function calls or simply a function call, a number or another variable.
 
@@ -76,6 +84,13 @@ To assign a value to a variable, the variable name needs to be followed by the a
 This definition of the grammar has a lot of rules but doesn't allow the precedence of arithmetic operations to be handled during the building of the parse tree and makes the grammar ambiguous.
 However, those rules allow us to have the desired behavior when we use the tool we have chosen for the implementation (\ref{TODO}).
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[height = 8cm]{figures/parse_trees/parseTree_varAssign}
+    \caption{The parse tree for a variable assignment :  \texttt{a = 4 + (5-2-4)*n;} \\The tool used handled the operation precedence.}
+    \label{fig:parseTree_varAssign}
+\end{figure}
+
 \subsubsection*{Graph Manipulation}
 
 After having specified the graph context in which we want to work, we can do graph-specific operations as well as the other ones.
@@ -92,6 +107,16 @@ After having specified the graph context in which we want to work, we can do gra
     \omit $\mathit{AddRef}$ \hfil & \rightarrow \text{keywordRef varId semicolon}
 \end{align*}
 \captionedgrammar{Rules regarding graph contexts}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[height = 3.5cm]{figures/parse_trees/parseTree_graphManip}
+    \caption{The parse tree for some simple graph operations. The code parsed is \texttt{g\{
+        ref a;
+        ref b;
+        a |-5, "ex" -> b\} }}
+    \label{fig:parseTree_graphManip}
+\end{figure} %TODO : Fix grammar bc it isn't LL(1) bc a |-... and a=2 in graph context are separate rules
 
 \subsubsection*{Print statement}
 
@@ -129,17 +154,54 @@ The following else clause is optional.
 
 Since the boolean expression and the arithmetic expression are different, writing an arithmetic expression as the condition of an $\texttt{if}$ statement is a syntax error, not a type error that would be found by the type checker or a semantic error despite what some people might expect.
 This distinction also causes our grammar to be bigger complicating the implementation part.
-We still made the choice to write our grammar that way because the tool we use gives this grammar some redeeming qualities (\ref{TODO})
+We still made the choice to write our grammar that way because the tool we use gives this grammar some redeeming qualities (\ref{TODO} (future ref))
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[height = 1cm]{figures/parse_trees/parseTree_ifblock}
+    \caption{Top of the parse tree for the following if statement : \texttt{if(c)\{
+        a = 5;\}
+        else \{
+            b = 3;\}}}
+    \label{fig:parseTree_ifblock}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[height = 5cm]{figures/parse_trees/parseTree_ifClause}
+    \caption{Parse tree for the if clause in the following if statement : \texttt{if(c)\{
+    a = 5;\}
+    else \{
+    b = 3;\}}}
+    \label{fig:parseTree_ifClause}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[height = 5cm]{figures/parse_trees/parseTree_elseClause}
+    \caption{Parse tree for the else clause in the following if statement : \texttt{if(c)\{
+    a = 5;\}
+    else \{
+    b = 3;\}}}
+    \label{fig:parseTree_elseClause}
+\end{figure}
 
 \subsubsection*{While loop}
 
-The while loop isn't original either.
 The statement starts with the keyword \texttt{while} followed by the condition for the loop and then the block of code to repeat.
 
 \begin{align*}
 \mathit{WhileBlock} &\rightarrow \text{keywordWhile} \: \text{leftParen} \: \mathit{BoolExpr} \: \text{rightParen} \: \text{leftBrace} \: \{ \mathit{statement}\} \: \text{rightBrace}
 \end{align*}
 \captionedgrammar{Description of a while loop}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[height = 5cm]{figures/parse_trees/parseTree_whileblock}
+    \caption{Parse tree for the following while statement with a more complex boolean expression that includes a function call : \texttt{while(c < 2 || !(isPrime(a)))\{
+        a = 5;\}}}
+    \label{fig:parseTree_whileblock}
+\end{figure}
 
 \subsubsection*{Function definition and function call}
 
@@ -163,4 +225,11 @@ Once defined, the function can then be called in the contexts mentioned above, b
     \omit $\mathit{ListParam}$ \hfil &\rightarrow \mathit{varID} \:  \{ \text{comma} \: \mathit{varID} \}
 \end{align*}
 \captionedgrammar{Rules for function definitions and function calls}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[height = 5cm]{figures/parse_trees/parseTree_funcdef}
+    \caption{Parse tree for the following function definition : \texttt{def float multi(float n, float m)\{return n*m;\}} }
+    \label{fig:parseTree_funcdef}
+\end{figure}
 
