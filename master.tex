@@ -1,4 +1,4 @@
-%  A simple AAU report template.
+\usepackage{listings}%  A simple AAU report template.
 %  2015-05-08 v. 1.2.0
 %  Copyright 2010-2015 by Jesper Kjær Nielsen <jkn@es.aau.dk>
 %
@@ -14,25 +14,26 @@
 %
 %  You can find the GNU General Public License at <http://www.gnu.org/licenses/>.
 %
-\input{setup/preamble.tex}% package inclusion and set up of the document
-\input{setup/hyphenations.tex}% 
-\input{setup/macros.tex}% my new macros
+\input{setup/preamble}% package inclusion and set up of the document
+\input{setup/hyphenations}%
+\input{setup/macros}% my new macros
 
 \begin{document}
 %frontmatter
 \pagestyle{empty} %disable headers and footers
 \pagenumbering{roman} %use roman page numbering in the frontmatter
-\input{sections/frontpage.tex}
-\input{sections/colophon.tex}
-\input{sections/titlepages.tex}
+\input{sections/frontpage}
+\input{sections/colophon}
+\input{sections/titlepages}
 \pdfbookmark[0]{Contents}{label:contents}
 \pagestyle{fancy} %enable headers and footers again
 \tableofcontents
 %mainmatter
 \pagenumbering{arabic} %use arabic page numbering in the mainmatter
-\input{sections/chapters/introduction.tex}
-\input{sections/chapters/data_discovery_tool.tex}
-\input{sections/chapters/conclusion.tex}
+\input{sections/chapters/introduction}
+\input{sections/chapters/approach}
+\input{sections/chapters/implementation}
+\input{sections/chapters/conclusion}
 %\cite{Madsen2010}
 \printbibliography[heading=bibintoc]
 \end{document}
