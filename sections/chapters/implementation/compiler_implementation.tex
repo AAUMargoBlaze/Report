@@ -1,0 +1,37 @@
+This section will cover the internal logic of the compiler.
+
+\subsection{Listeners}
+
+\subsection{Exceptions}
+
+\subsection{Testing}
+
+\subsection{Distribution}
+Our last task is to ensure that end users are capable of conveniently executing the code we have provided.
+Leveraging the use of libraries helps us streamline the process, but also introduces steps that an end user would have
+to follow.
+Ideally our implementation would execute directly without many requirements, however, without having a clear way to do
+that we have decided to settle on using a Docker image as an executable~\cite{DockerExec}, which will limit the usage
+requirements to just running docker.
+
+Unfortunately the nature of graphviz visualisations rely on specific subsystems to provide an image on screen, naturally
+these subsystems do not communicate with those of the host machine without tweaking, which would defeat the purpose of
+using docker for convenience.
+Rather than attempt a complex solution, we have decided to rely on the ``libgraph-easy-perl'' package, which can
+translate dot notation to ascii form - this can then be printed to standard out.
+
+\begin{lstlisting}[caption={The DockerFile used for distribution},captionpos=b,label={lst:dockerfile}]
+    FROM python:3.9
+
+    RUN pip install graphviz
+    RUN pip install lattice-graph-manipulation
+    RUN apt update
+    RUN apt install -y graphviz
+    RUN apt install -y xdg-utils
+    RUN apt install -y libgraph-easy-perl
+
+    ENTRYPOINT ["python"]
+\end{lstlisting}
+
+We can now simply use environment variables to ensure that the text version is printed for distributed versions of
+the application.
