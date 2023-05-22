@@ -5,6 +5,21 @@ This section will cover the internal logic of the compiler.
 \subsection{Exceptions}
 
 \subsection{Testing}
+To ensure that our compiler functions correctly we must construct a test suite that ensures valid lattice code compiles
+correctly, and that invalid lattice code is appropriately handled.
+Exhaustively testing language features is unsolvable, and language components are too interoperable to realistically
+construct unit tests (no language components will realistically exist in a vacuum).
+Our approach will largely involve focusing on target code snippets and matching them to concrete examples - this will
+allow us to build regression tests to ensure that language changes do not affect established working code.
+The unfortunate effect of this approach is that it leaves code open unexpected exploitations, our only defence against
+this will be to attempt to create tests that logically could expose flaws (heuristically based on personal experience).
+
+In reality there are no other realistic options to approach testing a language, as no algorithm exists to ensure the
+validity of one.
+We can see examples of this becoming an issue in more mature languages such as Python~\cite{PythonIssue} - with this
+knowledge our goal would be to foster and leverage a community, then act quickly once issues are brought up.
+
+In this section we will cover the test cases that we have chosen, and our reasons for having them.
 
 \subsection{Distribution}
 Our last task is to ensure that end users are capable of conveniently executing the code we have provided.
