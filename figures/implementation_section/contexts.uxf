@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="15.1">
+  <zoom_level>18</zoom_level>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>684</x>
+      <y>0</y>
+      <w>702</w>
+      <h>306</h>
+    </coordinates>
+    <panel_attributes>/Context/
+--
++ Name: String
+-_variables: Dictionary&lt;string, LatticeVariable&gt; 
+- _subContexts: Dictionary&lt;string, Context&gt; 
+--
++ DeclareVariable
++ GetVariable
++ DeclareContext
++ GetSubContext
++ Clone</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>90</x>
+      <y>468</y>
+      <w>774</w>
+      <h>180</h>
+    </coordinates>
+    <panel_attributes>FunctionContext
+--
++ ReturnType: LatticeType
++ Parameters: Queue&lt;(string name, LatticeType type)&gt;
+--
+- DeclareParametersAsVariables</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1782</x>
+      <y>72</y>
+      <w>234</w>
+      <h>54</h>
+    </coordinates>
+    <panel_attributes>IfBlockContext</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1368</x>
+      <y>72</y>
+      <w>450</w>
+      <h>126</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>230.0;10.0;10.0;50.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1368</x>
+      <y>216</y>
+      <w>450</w>
+      <h>72</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>230.0;20.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1782</x>
+      <y>234</y>
+      <w>270</w>
+      <h>54</h>
+    </coordinates>
+    <panel_attributes>WhileBlockContext</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1044</x>
+      <y>468</y>
+      <w>774</w>
+      <h>396</h>
+    </coordinates>
+    <panel_attributes>GraphContext
+--
+- _nodes: Dictionary&lt;string, Node&gt;
+- _relationships: Dictionary&lt;string, Relationship&gt; 
+--
++ DeclareNode
++ GetNode
++ DeclareRelationship
++ GetRelationship
++ CheckFmapTypeSafety
++ ApplyFmap
+- IterateNodesToNewContext
+- IterateRelationshipsToNewContext
++ Clone</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>432</x>
+      <y>288</y>
+      <w>450</w>
+      <h>216</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;100.0;230.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1242</x>
+      <y>288</y>
+      <w>198</w>
+      <h>216</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>90.0;100.0;10.0;10.0</additional_attributes>
+  </element>
+</diagram>

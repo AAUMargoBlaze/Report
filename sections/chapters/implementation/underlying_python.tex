@@ -1,0 +1,188 @@
+Our goal for the python implementation is to find a way that is both convenient to write and efficient to execute.
+To achieve this we will build a python library that can abstract graph building concepts to simplify the process for us.
+
+Some early considerations to make are as follows:
+\begin{itemize}
+    \item {Data should be loaded into memory sparingly, allowing for more ambitious implementations}
+    \item {Graphs must be viewable, this allows for easy debugging}
+    \item {Building graphs should be a self-documenting process, as convenient and easy to read as possible
+        (this will allow easier code generation later)}
+\end{itemize}
+
+
+Our first attempt at improving efficiency is to avoid forcing graphs to maintain the location of each node in memory.
+The way we approach this is by having `exposed' and `hidden' nodes, in essence, a graph does not need to be aware
+of the nodes it has, as we can use pathfinding to expose these nodes.
+For larger graphs this allows us to define several key points that pathfinding should originate from (for example,
+a pathfinding algorithm could expose nodes in city centres, then begin traversal from there).
+Hidden nodes refer to nodes that have edges with nodes that are exposed within the graph, and are only reachable by
+pathfinding algorithms, or other graphs that expose those specific nodes.
+
+\begin{lstlisting}[caption={Adding nodes to a graph},captionpos=b,label={lst:hidden-visible-nodes}]
+    def add_nodes(self, **nodes: Node):
+        """Exposed nodes are defined in key value pairs"""
+        # add regular nodes
+        for key, value in nodes.items():
+            self._nodes[key] = value
+
+    def add_node(self, node: Node, label):
+        """Create a node within the graph"""
+        self._nodes[label] = node
+\end{lstlisting}
+
+Relationships between nodes are an equally important consideration in the construction of graphs.
+Earlier in the use cases section we touched on the considerations when creating edges that can account for any type of
+use case.
+Our eventual approach is to create a basic Edge that at most defines the relationship, and use inheritance to attach
+functionality to such edges.
+Additionally, this will allow us to traverse edges depending on their ``type'' - for example we can build a traversal
+edge that inherits regular edge and adds the concept of a cost; we can then build algorithms that explore the graph
+only on edges that are a child of a traversal edge.
+Our approach allows us to traverse graphs in different ways for different situations, for example we may want to
+construct a graph that has hidden computational edges, then for debugging purposes we can connect nodes using
+visual edges.
+As edges are a facet of the nodes themselves, creating edges is a function of the predecessor node - connecting it to a
+successor node.
+
+With a basic approach defined we can start working on the visualisation.
+As an attempt to maintain the convenience we've been focusing on, we want a visualisation to be as simple as using a
+python print statement - which will also simplify code generation later.
+Python allows us to override the way that classes are interacted with by exposing the base functionality as an
+inherited trait~\cite{PythonDunder} -this is significant as invoking a print statement on an object invokes the special
+\textbf{\_\_str\_\_} method and returns the output to the console.
+For our intended functionality, we override this method to simply return the unicode zero width space (returning no
+output to the standard out).
+Rather than printing to standard out, we have decided that the graph structure should be shown as a visual
+representation, for this we will output an image once the print statement is called.
+
+
+\begin{lstlisting}[caption={Visualising graphs},captionpos=b,label={lst:python-visualise-graph}]
+    def visualise(self, fingerprint: str = None):
+        """
+        Display visible nodes in the graph
+        Node names are set by the label of the node, rather than the key set by the graph
+        """
+        # Create a new fingerprint for each visualisation to generate a single file per print
+        runtime_fingerprint = fingerprint or uuid.uuid4()
+        dot = graphviz.Digraph(str(runtime_fingerprint))
+        explored = []
+        for name, node in self.nodes.items():
+            if node not in explored:
+                explored = self._recursive_visualiser(node, explored, dot)
+
+        dot.render(directory='dot_output', view=True)
+
+    def _recursive_visualiser(self, node, explored, dot):
+        """Visualise every node by exploring node connections"""
+        explored.append(node)
+        shape = 'circle'
+        if node in self._nodes.values():
+            shape = 'doublecircle'
+        dot.node(str(node), node.get_label(), shape=shape)
+        for edge, next_node in node.successors:
+            if isinstance(edge, VisualEdge):
+                dot.edge(str(node), str(next_node), label=str(edge.get_label()))
+                if next_node not in explored:
+                    explored = self._recursive_visualiser(next_node, explored, dot)
+
+        return explored
+
+    def __repr__(self):
+        self.visualise()
+        return "​"
+\end{lstlisting}
+
+To avoid visualising too many edges in larger graphs, we create a ``Visual Edge'' class, any edge that inherits this
+will be an edge that can be followed during visual exploration.
+
+Regarding visualisations, we have already mentioned that the technology we will be using is GraphViz, which will store
+the graphs that users visualise in `dot' notation (allowing graph visuals to remain consistent).
+Graph building in graphviz consists of defining individual nodes and connecting them via edges - similar to the
+construction of regular graphs.
+Naturally GraphViz exposes many visual components, to avoid complicating the visualisation process we will focus on
+only exposing the labels for both nodes and edges.
+
+Consequently, we have nodes and edges that abuse inheritance to abstract the features we have laid out in the use cases
+section.
+
+An additional feature that we would like to implement in the Lattice language is the ability to map a function (FMAP) on
+to  every node in graph, we have decided that the most convenient place to do this is within the python library itself.
+Our first FMAP approach will be a simple ``flat'' application of the function on to each node - the given function will
+perform a transformation of that node's data.
+More complex FMAP's would involve contextual knowledge of traversal path and edges, however we have considered that out
+of scope for the basic implementation.
+
+\begin{lstlisting}[caption={FMAP on a graph including examples},captionpos=b,label={lst:python-fmap-graph}]
+    def apply(self, func):
+        """Apply a function flatly to every node in the network"""
+        explored = []
+        for node in self.nodes.values():
+            if node not in explored:
+                explored = self._recursive_apply(node, func, explored)
+
+    def _recursive_apply(self, node: Node, func: Callable, explored: List[Node]):
+        """Apply the function to this node then call this function on every connected node"""
+        explored.append(node)
+        node.data = func(node.data)
+        for edge, next_node in node.successors:
+            if next_node not in explored:
+                self._recursive_apply(next_node, func, explored)
+
+        return explored
+    ##################### APPLICATION #####################
+    simple_graph = Graph()
+    simple_graph.add_nodes(node1=Node(1))
+    node2 = Node(2)
+    node3 = Node(3)
+    node4 = Node(4)
+    simple_graph.get_node('node1').add_edge(Edge(), node2)
+    node2.add_edge(Edge(), node3)
+    node3.add_edge(Edge(), node4)
+
+    simple_graph.apply(lambda x: x + 1)
+    simple_graph.apply(print)
+    ####################### OUTPUT ########################
+    2
+    3
+    4
+    5
+\end{lstlisting}
+
+Lastly, for some operations we would like to perform a full copy of the graph and its nodes.
+This should be an absolutely last resort action, as any implementation requires an expensive full exploration of the
+graph (including hidden nodes).
+A deepcopy in our implementation will go over every single node that the graph contains and is connected to, and
+constructs a copy of it.
+
+\begin{lstlisting}[caption={Deep copying a graph},captionpos=b,label={lst:python-deepcopy-graph}]
+    def deepcopy(self):
+        """Return a network of nodes encased by this graph, but copied"""
+        new_graph = Graph()
+        explored = {}
+        for name, node in self.nodes.items():
+            if node not in explored:
+                new_node = node.copy(label=node.get_label())
+                explored[node] = new_node
+                new_graph.add_nodes(**{name: new_node})
+                explored = self._recursive_copier(new_node, node, explored, new_graph)
+
+        return new_graph
+
+    def _recursive_copier(self, new_node, frontier_node, explored, graph):
+        """Explore each new node and copy it into a given graph"""
+        for edge, next_node in frontier_node.successors:
+            if next_node not in explored:
+                next_new_node = next_node.copy(label=next_node.get_label())
+                explored[next_node] = next_new_node
+                if next_node in self.nodes.values():
+                    node_name = list(self._nodes.keys())[list(self._nodes.values()).index(next_node)]
+                    graph.add_nodes(**{node_name: next_new_node})
+
+                explored = self._recursive_copier(next_new_node, next_node, explored, graph)
+
+            new_node.add_edge(edge, explored[next_node])
+        return explored
+\end{lstlisting}
+
+We can now create such a library and upload it to the public PyPi repository to allow for easier execution of compiled
+code~\cite{LatticePyPi}.
