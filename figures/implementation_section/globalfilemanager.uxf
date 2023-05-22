@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="15.1">
+  <zoom_level>19</zoom_level>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>342</x>
+      <y>266</y>
+      <w>399</w>
+      <h>361</h>
+    </coordinates>
+    <panel_attributes>GlobalFileManager
+--
+- _path: string
+- _startedANewLine: bool
+- _offsetCounter: int
+--
++ Initialize
++ Write
++ Indent
++ Outdent</panel_attributes>
+    <additional_attributes/>
+  </element>
+</diagram>
