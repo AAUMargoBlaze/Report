@@ -107,3 +107,17 @@
 }{%
 		\end{exa}
 }
+
+%caption for the grammar snippets
+\newcounter{foo}
+\newcommand{\captionedgrammar}[1]{
+        {
+        \medskip
+        \centering
+        \setcounter{foo}{\thefoo}
+        \addtocounter{foo}{1}
+        Production rule \thefoo: #1
+
+
+    }
+}

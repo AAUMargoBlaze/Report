@@ -1,0 +1,43 @@
+\subsubsection{Variable declaration, assignment, and access}
+
+\begin{itemize}
+    \item Each variable must be declared before being assigned a value.
+    \item Each variable must have a unique name throughout the program, regardless of the scope.
+    \item Variables must be initialized with a value before they are accessed (for example in an expression or function call).
+    \item The value assigned to a variable must be compatible with its declared type.
+\end{itemize}
+
+\subsubsection{Type rules}
+
+\begin{itemize}
+    \item Assignment from float to integer is not allowed, but assignment from integer to float is allowed.
+    \item Arithmetic expressions involving integers and floats will result in a float value.
+    \item Arithmetic expressions with strings are not allowed.
+    \item Boolean expressions can compare floats and integers and the result of \texttt{2.0 == 2} is true.
+    \item Comparisons must be made between compatible types.
+    \item String comparisons are limited to equality checks; the greater than operator is not applicable.
+    \end{itemize}
+
+\subsubsection{Functions}
+
+\begin{itemize}
+    \item A function needs to be defined before being called.
+    \item The type and number of arguments in a function call must match the declared function signature.
+    \item The return statement is only allowed within the scope of a function.
+    \item All functions must have unique names.
+    \item The value returned by a function must match its declared return type.
+    \end{itemize}
+
+\subsubsection{Graph contexts}
+
+\begin{itemize}
+    \item A variable needs to be referenced in a context before it can be used in relations or other statements in this context, even if it was first declared in this context.
+\item A variable can only be referenced or cloned in a context if it is present (declared or referenced) in the parent context.
+    \item Printing a graph will display its nodes and relations as well as the ones in the child graph contexts if there are any.
+    \item There can be any number of relation between two nodes, the weight,label and direction of the edge don't have to be unique.
+    \item The variable on which the \texttt{fmap} statement is applied must be a graph
+    \item The type of all the nodes in a graph must match the one of the parameters of the function called with the \texttt{fmap} keyword.
+    \item The function called with the \texttt{fmap} keyword must have only one parameter.
+    \end{itemize}
+
+
