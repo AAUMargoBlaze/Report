@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="15.1">
+  <zoom_level>10</zoom_level>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>470</x>
+      <y>80</y>
+      <w>150</w>
+      <h>120</h>
+    </coordinates>
+    <panel_attributes>LatticeType
+--
+Int
+Str
+Float
+Bool
+Graph</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>120</x>
+      <y>80</y>
+      <w>210</w>
+      <h>150</h>
+    </coordinates>
+    <panel_attributes>LatticeVariable
+--
++ Type: LatticeType
++ Id: string
+- _value: string
+--
++ SetValue
++ GetValue
++ Clone</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>120</x>
+      <y>300</y>
+      <w>220</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>LatticeExpression
+--
++ ExpressionText: string
++ EvaluationType: LatticeType
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+</diagram>

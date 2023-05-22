@@ -22,7 +22,7 @@ resembles the one we're translating from.
 In this train of thought, we have decided to compile to python, as it is a similarly high level language to the one
 we are designing.
 
-\subsubsection{Compiler Tools}
+\subsubsection{Compiler Tools}\label{subsubsec:compilertools}
 Our choice for compiler tooling follows a similar logic to most development tools, we would like ease of use, while
 maintaining support for more complex functionality.
 
@@ -30,8 +30,7 @@ The main decision that had to be made was between ANTLR and leveraging the toolk
 provides~\cite{IntellijLanguage}.
 After choosing ANTLR, we reasoned that we could take advantage of the parse tree that ANTLR creates for both debugging
 and traversal properties - as ANTLR creates an easily readable image displaying how the grammar operates.
-Furthermore, ANTLR introduces with it the listener pattern~\cite[p18]{ANTLRReference} that we believe can be used later
-when we have to build Abstract Syntax Trees (ASTs).
+Furthermore, ANTLR introduces with it the listener pattern~\cite[p18]{ANTLRReference}
 
 The document describing the syntax and semantics of a language is referred to as a ``grammar''\cite{Grammars}, both
 ANTLR and the intellij plugin are based on Extended Backus-Naur Form (EBNF), they also both include a feature for
