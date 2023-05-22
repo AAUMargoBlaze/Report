@@ -12,21 +12,21 @@ listener methods are called by the ANTLR-provided walker object, whereas
 visitor methods must walk their children with explicit visit calls. Forgetting
 to invoke visit() on a node’s children means those subtrees don’t get visited." ~\cite{ANTLRReference}.
 
-Therefore, to mitigate some of the disadvantage we have due to our smaller group size, we can rely on the listener pattern
-and only write the specific listener methods we care about, while ignoring the specifics of walking the rest of the tree.
+Therefore, to mitigate some of the disadvantages we have due to our smaller group size, we can rely on the listener pattern
+and only write the specific listener methods we care about while ignoring the specifics of walking the rest of the tree.
 
 Notably, to facilitate the usage of the listener pattern, there were some minor changes introduced in the final grammar.
-For example the rule \lstinline{ifblock} was broken down into two parts: \lstinline{ifblock} and \lstinline{ifheader}.
+For example, the rule \lstinline{ifblock} was broken down into two parts: \lstinline{ifblock} and \lstinline{ifheader}.
 This has the advantage of allowing us to create separate listener methods for when the lexer exits
 the header part of the if statement, immediately allowing us to parse and translate it.
-Without separating the rules, we would have to manually traverse the context, as the latter would result in a
+Without separating the rules, we would have to manually traverse the context, the latter would result in a
 more fragile code base.
 
-We have created multiple listener classes ~\ref{fig:listener_class_diagrams} , all of them inheriting from the base class:\lstinline{LatticeBaseListener}.
-This approach creates a more readable codebase, compared to having a single listener class with all the relevant
+We have created multiple listener classes ~\ref{fig:listener_class_diagrams}, all of them inheriting from the base class: \lstinline{LatticeBaseListener}.
+This approach creates a more readable codebase compared to having a single listener class with all the relevant
 listener methods.
-Moreover, some classes implement the same listener method, but behave differently, based on the compiled code.
-For example: both \lstinline{VariableListener} and \lstinline{GraphListener} implement the \lstinline{ExitVardecl}
+Moreover, some classes implement the same listener method but behave differently, based on the compiled code.
+For example both \lstinline{VariableListener} and \lstinline{GraphListener} implement the \lstinline{ExitVardecl}
 However, \lstinline{GraphListener} only modifies the output when a graph is declared, while \lstinline{VariableListener}
 handles all other variable declarations.
 
@@ -38,7 +38,7 @@ handles all other variable declarations.
 \end{figure}
 
 \subsection{Context Management}
-As most other programming languages, Lattice also deals with contexts.
+Like most other programming languages, Lattice also deals with contexts.
 For instance functions are independent blocks of code, separate from the main structure.
 The main focus of Lattice are the graphs, they also behave as independent contexts.
 Nodes defined within a graph block are unique to that specific context.
@@ -54,9 +54,9 @@ It has multiple responsibilities, namely:
     \item Maintains a dictionary of all declared functions.
 \end{itemize}
 
-Each context class inherits from the abstract class \lstinline{Context} ~\ref{fig:contexts} .
+Each context class inherits from the abstract class \lstinline{Context} (figure: ~\ref{fig:contexts}).
 This base class implements the shared logic of all contexts, such as a symbol table for variables (implemented as a dictionary)
-and all subordinate contexts.
+and a dictionary of all subordinate contexts.
 
 \begin{figure}[H]
     \centering
@@ -65,7 +65,7 @@ and all subordinate contexts.
     \label{fig:contexts}
 \end{figure}
 
-The \lstinline{IfBlockContext} and the \lstinline{WhileBlockContext} are essentially featureless implementation
+The \lstinline{IfBlockContext} and the \lstinline{WhileBlockContext} are essentially featureless implementations
 of the \lstinline{Context} base class.
 However, implementing them as unique classes allows future expansion, and some level of type safety within C#.
 
@@ -80,20 +80,20 @@ when accessing them as variables do pass.
 
 The \lstinline{GraphContext} heavily expands the base class' functionality.
 As the name suggests it is responsible for managing the graph operations.
-The main functionality is related to the management of nodes and relationships, detailed in subsection ~\ref{subsec:nodes_and_relationship}
+The main functionality is related to the management of nodes and relationships, detailed in subsection ~\ref{subsec:nodes_and_relationships}
 
 \subsection{IO operations}
-Compiling to python introduces a few unique challenges.
+Compiling to Python introduces a few unique challenges.
 Due to the nature of its syntax, the compiler has to be mindful of the indentation.
 
-The interface for the actual code output is the static class \lstinline{GlobalFileManager} ~\ref{fig:global_file_manager}.
-It can output both the stdout and to a specified file.
+The interface for the actual code output is the static class \lstinline{GlobalFileManager} (figure ~\ref{fig:global_file_manager})).
+It can output both to the stdout and to a specified file.
 
 Listener methods may call the \lstinline{Write} method to output code to the specified channel.
 
 It also implements the \lstinline{Indent} and \lstinline{Outdent} methods, which as the names suggest are responsible
 for maintaining correct indentation.
-In reality, the indentation is simply tracked in form of an integer.
+In reality, the indentation is simply tracked in the form of an integer.
 
 Whenever a listener calls the \lstinline{Write} method, the class checks whether the previous parameter string ended
 in a line feed, if so, the output string is prepended with the appropriate amount of whitespaces.
@@ -101,7 +101,7 @@ in a line feed, if so, the output string is prepended with the appropriate amoun
 This check is necessary to give the listeners the flexibility to output code in smaller chunks, instead of forcing
 them to only write complete lines.
 
-In action, using the \lstinline{GlobalFileManager} is as shown on listing ~\ref{lst:compiler_global_file_manager}
+In action, using the \lstinline{GlobalFileManager} is as shown in listing ~\ref{lst:compiler_global_file_manager}.
 
 \begin{lstlisting}[caption={Using the GlobalFileManager to enter an else block},captionpos=b, label={lst:compiler_global_file_manager}]
     public override void EnterElseblock(LatticeParser.ElseblockContext context)
@@ -127,13 +127,13 @@ Therefore, the compiler maintains a hardcoded enum of the available types.
 
 Whenever a type is parsed, it gets translated to the corresponding \lstinline{LatticeType} enum value.
 Since there is no evaluation of expressions during compilation, the values are stored as strings.
-For example, consider this simple Lattice code snippet \lstinline{int a = 5+5;}
+For example, consider this simple Lattice code snippet: \lstinline{int a = 5+5;}.
 
-While it could techincally be evaluated at compilation time to the integer 10, there is no clear benefit in doing so.
-Therefore, the Variable object will simply contain the string form of the expression \lstinline{5+5} .
+While it could technically be evaluated at compilation time to the integer 10, there is no clear benefit in doing so.
+Therefore, the Variable object will simply contain the string form of the expression \lstinline{5+5}.
 
 Expression objects behave in a very similar manner.
-They only need to know of the string form of the expression (in python form) and its evaluation type.
+They only need to know the string form of the expression (in Python form) and its evaluation type.
 With these two properties, the compiler is capable of performing semantic checks, and code generation.
 
 \begin{figure}[H]
@@ -147,8 +147,8 @@ The grammar does make a distinction between boolean and other expressions, but t
 treat these two types the same, simply setting the correct evaluation type for the object.
 
 When a Lattice expression is parsed, it may pass through multiple listener methods before it gets output.
-For example, consider the following expression: \lstinline{(true || boolvar) && some_boolean_function()}
-this expression would in fact pass through 6 listener methods (based on the grammar rules).
+For example, consider the following expression: \lstinline{(true || boolvar)&&some_boolean_function()}.
+This expression would in fact pass through 6 listener methods (based on the grammar rules).
 
 Since the tree walking is an implicit action, we could not rely on return values.
 Therefore, as suggested by the ANTLR reference manual, we used a stack based approach.
@@ -159,7 +159,7 @@ Instead, the method simply checks whether the referenced variable exists in the 
 ID as an expression to the stack.
 
 On the other hand, a parenthesis rule is meaningless without a subordinate expression.
-So the method first removes pops the last expression from the stack,
+So the method first pops the last expression from the stack,
 creates a new expression object of the last expression wrapped in parentheses and puts it back on the stack.
 
 \begin{lstlisting}[caption={ExpressionListener class excerpt},captionpos=b, label={lst:expression_listener_excerpt}]
@@ -211,7 +211,7 @@ There are two types of relationships implemented in the compiler (shown on figur
 Both of them inherit from the base abstract class \lstinline{Relationship}, which implements the shared behavior,
 namely cost and label.
 
-The difference between the two concrete implementation is corresponds to the mathematical definition of edges.
+The difference between the two concrete implementations corresponds to the mathematical definition of edges.
 The class \lstinline{DirectedRelationship} has a successor and a predecessor node, while \lstinline{UndirectedRelationship}
 contains a pair of nodes in a non-particular order.
 
@@ -229,7 +229,7 @@ This feature is made possible by ANTLR's channel system.
 
 It allows us to send some lexer input to a separate channel, away from the rest of the input.
 Normally it's used to ignore things like comments.
-For instance, in our G4 file, comments are defined as such \lstinline{MULTILINE_COMMENT   : '/*' .*? '*/' -> skip;}
+For instance, in our G4 file, comments are defined as such: \lstinline{MULTILINE_COMMENT   : '/*' .*? '*/' -> skip;}
 where skip is an alias for a dead channel.
 
 However, leveraging the same system, we defined the following rule: \lstinline{PYTHON: '<PYTHON>' .*? '</PYTHON>' -> channel(99);}
@@ -262,7 +262,7 @@ gets enqueued in a static queue.
         }
     }
 \end{lstlisting}
-Finally, in the \lstinline{StdLibListener} class we override the \lstinline{EnterEveryRule} method, to immediately
+Finally, in the \lstinline{StdLibListener} class, we override the \lstinline{EnterEveryRule} method, to immediately
 output out any enqueued Python code received from the lexer (listing ~\ref{lst:stdliblistener}).
 
 \begin{lstlisting}[caption={Excerpt from the class StdLibListener},captionpos=b, label={lst:stdliblistener}]
@@ -276,15 +276,15 @@ output out any enqueued Python code received from the lexer (listing ~\ref{lst:s
     }
 \end{lstlisting}
 
-This approach has the benefit of being outside the language's grammar, removing the need to implement the entire python
+This approach has the benefit of being outside the language's grammar, removing the need to implement the entire Python
 CFG.
 
 However, it's important to note that since the interjects are outside of the grammar, they can't be used freely in place
 of normal Lattice code.
-For example the following piece of code is syntactically incorrect: \lstinline{int a = <PYTHON>foo()</PYTHON>}
+For example, the following piece of code is syntactically incorrect: \lstinline{int a = <PYTHON>foo()</PYTHON>}
 
-Moreover, any inline python code is outside the normal syntactic, semantic, and indentation checks.
-Therefore using them may result in invalid Python code generated. 
+Moreover, any inline Python code is outside the normal syntactic, semantic, and indentation checks.
+Therefore, using them may result in invalid Python code generated.
 \subsection{Testing}
 
 \subsection{Distribution}
