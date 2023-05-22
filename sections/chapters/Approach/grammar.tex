@@ -14,11 +14,13 @@ Statements can be variable declarations, variable assignments, graph manipulatio
 
 \begin{align*}
     \omit $\mathit{Statement}$ \hfil& \rightarrow \mathit{VarDecl} \\
-    & \mid \mathit{VarAssignOrGraphManip} \\
+    & \mid \mathit{VarAssignOrGraphManipOrAddRel} \\
     & \mid \mathit{PrintStatement} \\
     & \mid \mathit{IfBlock} \\
     & \mid \mathit{WhileBlock} \\
-    & \mid \mathit{ReturnStatement}
+    & \mid \mathit{ReturnStatement} \\
+    & \mid \mathit{AddRef} \\
+    & \mid \mathit{AddClone}
 \end{align*}
 \captionedgrammar{Description of the different kind of statements}
 
@@ -27,8 +29,8 @@ Statements can be variable declarations, variable assignments, graph manipulatio
 A variable is declared by writing its type followed by its name.
 After the variable declarations the statement can end with a semicolon or there can be a value assigned to the variable or a graph context can be opened.
 
-There need to be a global production rule for variable assignment and graph manipulation because both statements start with a variable identifier so having the rules be fully separated would mean that the grammar isn't LL(1).
-Once the variable for which we are writing the statement is specified, the rest of the statement can either correspond to an assignment or to a block of code in a graph context.
+There need to be a global production rule for variable assignment, graph manipulation and relation statements because all three of those statements start with a variable identifier so having the rules be fully separated would mean that the grammar isn't LL(1).
+Once the variable for which we are writing the statement is specified, the rest of the statement can either correspond to an assignment, a block of code in a graph context or a relation statement.
 
 \begin{align*}
     \omit $\mathit{VarDecl}$ \hfil& \rightarrow \mathit{Type} \: \text{varId} \: \mathit{VarDeclTail} \\
@@ -93,15 +95,11 @@ However, those rules allow us to have the desired behavior when we use the tool 
 
 \subsubsection*{Graph Manipulation}
 
-After having specified the graph context in which we want to work, we can do graph-specific operations as well as the other ones.
+After having specified the graph context in which we want to work, we can then write the statements to do in this context.
+Those might be graph-specific operations such as referencing or cloning a variable using the dedicated keywords, or adding a relation between two variables.
 
 \begin{align*}
-    \omit $\mathit{TailGraphManip}$ \hfil &\rightarrow \text{leftBrace} \: [\mathit{ListGraphOp}]  \: \text{rightBrace} \\
-    \omit $\mathit{ListGraphOp}$ \hfil &\rightarrow \mathit{graphOp} \: \mathit{ListGraphOp} \\
-    \omit $\mathit{GraphOp}$ \hfil &\rightarrow \mathit{AddRel}  \\
-    & \mid \mathit{AddClone} \\
-    & \mid \mathit{AddRef} \\
-    & \mid \mathit{Statement} \\
+    \omit $\mathit{TailGraphManip}$ \hfil &\rightarrow \text{leftBrace} \: \{ \mathit{Statement} \}  \: \text{rightBrace} \\
     \omit $\mathit{AddRel}$ \hfil & \rightarrow \text{varId opRelLeft} \: \mathit{Number} \: \text{comma string opRelRight varId} \\
     \omit $\mathit{AddClone}$ \hfil & \rightarrow \text{keywordClone varId semicolon} \\
     \omit $\mathit{AddRef}$ \hfil & \rightarrow \text{keywordRef varId semicolon}
@@ -116,7 +114,7 @@ After having specified the graph context in which we want to work, we can do gra
         ref b;
         a |-5, "ex" -> b\} }}
     \label{fig:parseTree_graphManip}
-\end{figure} %TODO : Fix grammar bc it isn't LL(1) bc a |-... and a=2 in graph context are separate rules
+\end{figure}
 
 \subsubsection*{Print statement}
 
@@ -133,24 +131,9 @@ The if-else statement structure is quite classic.
 After the \texttt{if} keyword, a boolean expression is specified between parenthesis and then the block of code to execute is written between curly brackets.
 The following else clause is optional.
 
-\begin{align*}
-    \omit $\mathit{IfBlock}$ \hfil &\rightarrow \mathit{IfClause} \: [\mathit{ElseClause}] \\
-    \omit $\mathit{IfClause}$ \hfil &\rightarrow \text{keywordIf} \: \text{leftParen} \: \mathit{BoolExpr} \: \text{rightParen} \: \text{leftBrace} \: \{ \mathit{statement}\} \: \text{rightBrace} \\
-    \omit $\mathit{ElseClause}$ \hfil &\rightarrow \text{keywordElse} \: \text{leftBrace} \: \{ \mathit{statement} \} \: \text{rightBrace} \\
-    \omit $\mathit{BoolExpr}$ \hfil &\rightarrow \text{opBNot} \: \mathit{BoolExpr} \\
-    & \mid \mathit{BoolExpr} \: \mathit{BoolOp} \: \mathit{BoolExpr} \\
-    & \mid \mathit{AssignVal} \: \mathit{CompOp} \: \mathit{AssignVal} \\
-    & \mid \text{leftParen} \: \mathit{BoolExpr} \: \text{RightParen} \\
-    & \mid \text{varID} \\
-    & \mid \mathit{FuncCall} \\
-    & \mid \mathit{BoolVal} \\
-    \omit $\mathit{BoolOp}$ \hfil &\rightarrow \text{opBAnd} \\
-    & \mid \text{opBOr} \\
-    \omit $\mathit{CompOp}$ \hfil & \rightarrow \text{opBEq} \\
-    & \mid \text{opBNeq} \\
-    & \mid \text{opBGrt}
-\end{align*}
-\captionedgrammar{Rules for if-else statements and boolean expressions}
+\begin{lstlisting}[caption={test},captionpos=b, label={lst:teststuff}]
+    IfBlock
+\end{lstlisting}
 
 Since the boolean expression and the arithmetic expression are different, writing an arithmetic expression as the condition of an $\texttt{if}$ statement is a syntax error, not a type error that would be found by the type checker or a semantic error despite what some people might expect.
 This distinction also causes our grammar to be bigger complicating the implementation part.
