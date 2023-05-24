@@ -14,10 +14,8 @@ compiler.
 \subsubsection{Type rules}
 
 \begin{itemize}
-    \item Assignment from float to integer is not allowed, but assignment from integer to float is allowed.
     \item Arithmetic expressions involving integers and floats will result in a float value.
     \item Arithmetic expressions with strings are not allowed.
-    \item Boolean expressions can compare floats and integers and the result of \texttt{2.0 == 2} is true.
     \item Comparisons must be made between compatible types.
     \item String comparisons are limited to equality checks; the greater than operator is not applicable.
     \end{itemize}
@@ -40,8 +38,7 @@ compiler.
     \item Printing a graph will display its nodes and relations as well as the ones in the child graph contexts if there are any.
     \item There can be any number of relation between two nodes, the weight,label and direction of the edge don't have to be unique.
     \item The variable on which the \texttt{fmap} statement is applied must be a graph
-    \item The type of all the nodes in a graph must match the one of the parameters of the function called with the \texttt{fmap} keyword.
-    \item The function called with the \texttt{fmap} keyword must have only one parameter.
+    \item The function called with the \texttt{fmap} keyword must have exactly one parameter.
     \end{itemize}
 
 
