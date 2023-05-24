@@ -279,7 +279,7 @@ output out any enqueued Python code received from the lexer (listing ~\ref{lst:s
 This approach has the benefit of being outside the language's grammar, removing the need to implement the entire Python
 CFG.
 
-However, it's important to note that since the interjects are outside of the grammar, they can't be used freely in place
+However, it's important to note that since the interjects are outside the grammar, they can't be used freely in place
 of normal Lattice code.
 For example, the following piece of code is syntactically incorrect: \lstinline{int a = <PYTHON>foo()</PYTHON>}
 
@@ -295,10 +295,127 @@ allow us to build regression tests to ensure that language changes do not affect
 The unfortunate effect of this approach is that it leaves code open unexpected exploitations, our only defence against
 this will be to attempt to create tests that logically could expose flaws (heuristically based on personal experience).
 
-In reality there are no other realistic options to approach testing a language, as no algorithm exists to ensure the
-validity of one.
-We can see examples of this becoming an issue in more mature languages such as Python~\cite{PythonIssue} - with this
-knowledge our goal would be to foster and leverage a community, then act quickly once issues are brought up.
+In this section we will explore the unit tests that we believe are sufficient to cover the language.
+Our format for unit testing will be to have a section of lattice code, and expect a direct 1:1 translation to
+python code - for report visualisations, we will write the translations as comments in python.
+For the purpose of brevity, our examples may condense more than one test into a single block of code - this is not
+desirable in real world testing as it makes it harder to narrow down a single point of failure.
+
+\subsubsection{Variables and Expressions}
+Our first test will be to ensure variable declaration and re-declaration - we can construct similar tests to test for
+proper type checking.
+
+\begin{lstlisting}[caption={Testing that variable declaration and type checking work},captionpos=b, label={lst:lattice-typing-test}]
+int x = 5;                  // x = 5
+int y = x + 5;              // y = x + 5
+str y = 10;                 // error
+bool z = x < y              // z = x < y
+str y = "test";             // y = "test"
+int z = "test" + y          // error
+str x = "newtest";          // error - x already defined
+\end{lstlisting}
+
+These tests would continue for each combination of types and expression operators.
+Unfortunately, even such a set of permutations is not infallible, as we see very unpredictable issues even in mature
+languages such as Python~\cite{PythonIssue}.
+
+\subsubsection{Branching Structures}
+As the structures we test become more complex, we find that our tests need to become more creative, here we will
+cover the tests we build to ensure the validity of loops, if/else statements, and functions.
+
+Firstly we build tests for simple branching, which we translate directly, avoiding issues with dangling else statements
+is avoided by relying on the Python compilation.
+In contrast, ``hanging'' else statements should be accounted for.
+
+\begin{lstlisting}[caption={Testing if-else statements},captionpos=b, label={lst:lattice-if-else-test}]
+int x = 0;                  // x = 0
+if (x < 5) {                // if x < 5:
+    print "1";              //     print("1")
+}
+else {                      // else:
+    print "2";              //     print("2")
+}
+else {                      // should error, currently ignored
+    print "5"
+}
+\end{lstlisting}
+
+For continuations of these tests, we check for all expression permutations within the if statement, and ensure the
+syntactic invalidity of missing characters (such as unclosed brackets).
+
+Next we move on to looping; as we are compiling to a language that already supports looping, our main concern for while
+loops is to ensure that indentation and the while loop expression itself remain intact.
+
+\begin{lstlisting}[caption={Testing while loops},captionpos=b, label={lst:lattice-while-loop-test}]
+int x = 0;                  // x = 0
+while (x < 5) {             // while x < 5:
+    x = x + 1;              //     x = x + 1
+}                           //
+print x;                    // print(x)
+\end{lstlisting}
+
+Similarly to if-else statements, we then create tests for combinations of expressions, and ensure that syntax errors
+are caught.
+
+Lastly we move on to functions, our main departure from the previous examples in this section is that we require a
+syntactic check to ensure that the return statement complies with what has been defined.
+
+\begin{lstlisting}[caption={Testing functions},captionpos=b, label={lst:lattice-function-test}]
+def str function1 (str x) {  // def function1(x):
+    return x;                  //    return x
+}
+def str function2 (int x) { // error (mismatching types)
+    return x;
+}
+str x = function1("test");    // x = function("test")
+str y = function1(5);          // error (mismatching types)
+\end{lstlisting}
+
+As always, we then create permutations for each type, and a set of syntax errors.
+
+\subsubsection{Nodes and Relationships}
+Our tests for this section will focus on correct translation of creating references and opening contexts.
+This is the first structure that we explore that doesn't have a direct translation, our focus on the translation will
+be to ensure that operations done within a context affect the correct graphs outside.
+
+\begin{lstlisting}[caption={Testing graphs},captionpos=b, label={lst:lattice-graph-test}]
+graph g1{                   // g1 = Graph()
+    int x = 5;              // x = 5
+    ref x;                  // g1.add_nodes(x=Node(5)
+    graph g2 {              // g2 = Graph()
+        int y = 6;          // y = 6
+        ref x;              // g2.add_nodes(x=Node(5)
+        ref y;              // g2.add_nodes(x=Node(6)
+        x |-3,"c1"-> y      // g2.get_node('x').add_edge(Edge("c1"), g2.get_node('y'))
+    }
+}
+print g2;                   // print(g2)
+graph g3{                   // error undefined x
+    ref x;
+}
+\end{lstlisting}
+
+To further these tests, we would ensure that references and edges work with any attribute type, additionally we can
+add invalid reference tests for various context switching setups, to ensure that the context stack works as intended.
+Function maps do not feature type checking, as a result, we would only create one test to ensure that the fmap consumes
+a function and translates to an ``apply()'' call in the python library.
+
+
+\subsubsection{Inline Python}
+Inline Python will be our simplest section, as we take little responsibility for correctness within the python section.
+Our concern here is to ensure that indents are not affected which we do by simply adding inline python to an indented
+structure (such as function definitions).
+
+\begin{lstlisting}[caption={Testing that injections maintain indents},captionpos=b, label={lst:python-indentation-test}]
+def str stringfunc(str x) { // def stringfunc(x, y):
+    <PYTHON>                   //     print(x)
+    print(x)                   //     return x
+    </PYTHON>                  //     return None
+    return x;
+}
+\end{lstlisting}
+
+Continuations of this test would have a similar structure for different features that require inlining of code.
 
 \subsection{Distribution}
 Our last task is to ensure that end users are capable of conveniently executing the code we have provided.
