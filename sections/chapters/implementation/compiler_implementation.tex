@@ -400,6 +400,8 @@ add invalid reference tests for various context switching setups, to ensure that
 Function maps do not feature type checking, as a result, we would only create one test to ensure that the fmap consumes
 a function and translates to an ``apply()'' call in the python library.
 
+As our print statements rely fully on the python implementation of the library, we consider this not a part of our
+testing, as we can reliably assume the structure of the graph based on the python output of our code.
 
 \subsubsection{Inline Python}
 Inline Python will be our simplest section, as we take little responsibility for correctness within the python section.
