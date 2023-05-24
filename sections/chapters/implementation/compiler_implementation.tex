@@ -296,6 +296,8 @@ The unfortunate effect of this approach is that it leaves code open unexpected e
 this will be to attempt to create tests that logically could expose flaws (heuristically based on personal experience).
 
 In this section we will explore the unit tests that we believe are sufficient to cover the language.
+As we have previously defined semantic rules, this allows us to have a quick reference to the nature of the tests that
+we must build for each logical section that we have defined.
 Our format for unit testing will be to have a section of lattice code, and expect a direct 1:1 translation to
 python code - for report visualisations, we will write the translations as comments in python.
 For the purpose of brevity, our examples may condense more than one test into a single block of code - this is not
@@ -306,13 +308,31 @@ Our first test will be to ensure variable declaration and re-declaration - we ca
 proper type checking.
 
 \begin{lstlisting}[caption={Testing that variable declaration and type checking work},captionpos=b, label={lst:lattice-typing-test}]
+// Setup of initial test vars and syntactic checks
 int x = 5;                  // x = 5
 int y = x + 5;              // y = x + 5
-str y = 10;                 // error
-bool z = x < y              // z = x < y
-str y = "test";             // y = "test"
-int z = "test" + y          // error
-str x = "newtest";          // error - x already defined
+str error = 10;             // error
+int error = "test" + y      // error
+// Each variable must be declared before being assigned a value.
+int error = t + 1;          // error - t is undefined
+// Each variable must have a unique name throughout the program (regardless of scope)
+int x = 6;                  // error - x already defined
+// Variables must be initialised with a value before they are accessed
+int t;                      // no output
+int s = t + 1;              // error - t is undefined
+// Arithmetic expressions involving integers and floats will result in a float value.
+float a = 2.0;              // a = 2.0
+int error = a + x;          // error - all operations involving floats go to float
+float b = a + x;            // b = a + x
+// Arithmetic expressions with strings are not allowed
+str c = "test1";            // c = "test1"
+str d = "test2";            // d = "test2"
+str error = c + d           // error - + operator does not apply to strings
+// Comparison must be made between compatible types
+bool z = x < y;             // z = x < y
+// String comparisons are limited to equality checks; the greater than operator is not applicable.
+bool e = c == d;            // e = c == d
+bool error = c > d          // error - > does not apply to strings
 \end{lstlisting}
 
 These tests would continue for each combination of types and expression operators.
@@ -361,16 +381,30 @@ Lastly we move on to functions, our main departure from the previous examples in
 syntactic check to ensure that the return statement complies with what has been defined.
 
 \begin{lstlisting}[caption={Testing functions},captionpos=b, label={lst:lattice-function-test}]
-def str function1 (str x) {  // def function1(x):
-    return x;                  //    return x
+// Working example
+def str function1 (str x) { // def function1(x):
+    return x;               //    return x
 }
-def str function2 (int x) { // error (mismatching types)
+function1("test");
+// A function needs to be defined before being called
+x()                         // error - x is undefined
+// The type and number of arguments in a function call must match the declared function signature
+function1(5);               // error - mismatching type
+function1("first", "second")// error - too many arguments
+// The return statement is only allowed within the scope of a function
+return 5;                   // error - parse error, not within a function
+// All functions must have unique names
+def int function1 () {      // error - function1 already defined
+}
+// The value returned by a function must match its declared return type
+def str function2 (int x) { // error - mismatching types
     return x;
 }
-str x = function1("test");    // x = function("test")
-str y = function1(5);          // error (mismatching types)
+str x = function1("test");  // x = function("test")
+str y = function1(5);       // error - mismatching types
 \end{lstlisting}
 
+This strictly covers all the semantic rules we have laid out for functions.
 As always, we then create permutations for each type, and a set of syntax errors.
 
 \subsubsection{Nodes and Relationships}
@@ -386,10 +420,15 @@ graph g1{                   // g1 = Graph()
         int y = 6;          // y = 6
         ref x;              // g2.add_nodes(x=Node(5)
         ref y;              // g2.add_nodes(x=Node(6)
-        x |-3,"c1"-> y      // g2.get_node('x').add_edge(Edge("c1"), g2.get_node('y'))
+        x |-0,"e"-> y       // g2.get_node('x').add_edge(Edge("c1"), g2.get_node('y'))
     }
 }
 print g2;                   // print(g2)
+// A variable needs to be referenced in a context before it can be used in relations or other statements in this context, even if it was first declared in this context.
+graph g3 {
+    ref a |-0,"e"-> b       // error - undefined a and b
+}
+// A variable can only be referenced or cloned in a context if it is present (declared or referenced) in the parent context
 graph g3{                   // error undefined x
     ref x;
 }
