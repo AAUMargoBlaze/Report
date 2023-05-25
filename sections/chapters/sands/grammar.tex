@@ -29,14 +29,14 @@ Statements can be variable declarations, variable assignments, graph manipulatio
 A variable is declared by writing its type followed by its name.
 After the variable declarations the statement can end with a semicolon or there can be a value assigned to the variable or a graph context can be opened.
 
-There need to be a global production rule for variable assignment, graph manipulation and relation statements because all three of those statements start with a variable identifier so having the rules be fully separated would mean that the grammar isn't LL(1).
+There needs to be a global production rule for variable assignment, graph manipulation and relation statements because all three of those statements start with a variable identifier so having the rules be fully separated would mean that it is not possible to know which production rule to apply with a look-ahead of only one token, which is necessary for the ANTLR tool to generate the parser.
 Once the variable for which we are writing the statement is specified, the rest of the statement can either correspond to an assignment, a block of code in a graph context or a relation statement.
 
 \begin{align*}
     \omit $\mathit{VarDecl}$ \hfil& \rightarrow \mathit{Type} \: \text{varId} \: \mathit{VarDeclTail} \\
     \omit $\mathit{VarDeclTail}$ \hfil & \rightarrow \mathit{TailVarAssignOrGraphManip} \\
     & \mid \text{semicolon} \\
-    \omit $\mathit{VarAssignOrGraphManip}$\hfil & \rightarrow \text{varId} \: \mathit{TailVarAssignOrGraphManip} \\
+    \omit $\mathit{VarAssignOrGraphManipOrAddRel}$\hfil & \rightarrow \text{varId} \: ( \mathit{TailVarAssignOrGraphManip} |  \mathit{TailAddRel})\\
     \omit $\mathit{TailVarAssignOrGraphManip}$ & \rightarrow \mathit{TailVarAssign} \\
     & \mid  \mathit{TailGraphManip}\ \\
     \omit $\mathit{Type}$ \hfil & \rightarrow \text{typeString} \\
@@ -49,20 +49,19 @@ Once the variable for which we are writing the statement is specified, the rest 
 
 \begin{figure}[H]
     \centering
-    \includegraphics[height = 5cm]{figures/parse_trees/parseTree_varDecl}
+    \includegraphics[height = 5.5cm]{figures/parse_trees/parseTree_varDecl}
     \caption{The parse tree for the statements \texttt{int a;
     str b = "oui";}}
     \label{fig:parseTree_varDecl}
 \end{figure}
 
 \subsubsection*{Variable assignment and arithmetic expressions}
-To assign a value to a variable, the variable name needs to be followed by the assignment operator and then the assigned value, which can be a string, a boolean value, an arithmetic expression with variables, numbers and function calls or simply a function call, a number or another variable.
+To assign a value to a variable, the variable name needs to be followed by the assignment operator and then the assigned value, which can be an arithmetic expression with variables, numbers, strings and function calls or a boolean expression.
 
 \begin{align*}
     \omit $\mathit{TailVarAssign}$ \hfil & \rightarrow \text{opAssign} \: \mathit{AssignVal} \: \text{semicolon} \\
-    \omit $\mathit{AssignVal}$ \hfil & \rightarrow \text{string} \\
-    & \mid \mathit{Expr} \\
-    & \mid \mathit{BoolVal}\\
+    \omit $\mathit{AssignVal}$ \hfil & \mid \mathit{Expr} \\
+    & \mid \mathit{BoolExpr}\\
     \omit $\mathit{Expr}$ \hfil & \rightarrow \text{opSub} \: \mathit{Expr} \\
     & \mid \mathit{Expr} \: \mathit{MulOp} \: \mathit{Expr} \\
     & \mid \mathit{Expr} \: \mathit{AddOp} \: \mathit{Expr} \\
@@ -71,8 +70,7 @@ To assign a value to a variable, the variable name needs to be followed by the a
     & \mid \text{varId} \\
     & \mid \mathit{FuncCall} \\
     & \mid \text{KeywordFmap} \: \text{varId} \: \text{varId} \\
-    \omit $\mathit{BoolVal}$ \hfil & \rightarrow \text{keywordTrue} \\
-    & \mid \text{keywordFalse} \\
+    & \mid \text{string} \\
     \omit $\mathit{Number}$ \hfil & \rightarrow \text{integer} \\
     & \mid \text{floatLit} \\
     \omit $\mathit{AddOp}$ \hfil & \rightarrow \text{opAdd} \\
@@ -84,12 +82,12 @@ To assign a value to a variable, the variable name needs to be followed by the a
 \captionedgrammar{Rules for variable assignment and arithmetic expressions}
 
 This definition of the grammar has a lot of rules but doesn't allow the precedence of arithmetic operations to be handled during the building of the parse tree and makes the grammar ambiguous.
-However, those rules allow us to have the desired behavior when we use the tool we have chosen for the implementation (\ref{TODO}).
+However, those rules allow us to have the desired behavior when we use the ANTLR recognizer because the different possibilities don't have the same priority, instead the order in which they appear defines the order of priority.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[height = 8cm]{figures/parse_trees/parseTree_varAssign}
-    \caption{The parse tree for a variable assignment :  \texttt{a = 4 + (5-2-4)*n;} \\The tool used handled the operation precedence.}
+    \includegraphics[height = 9cm]{figures/parse_trees/parseTree_varAssign}
+    \caption{The parse tree for a variable assignment :  \texttt{a = 4 + (5-2-4)*n;} \\The ANTLR recognizer used handled the operation precedence.}
     \label{fig:parseTree_varAssign}
 \end{figure}
 
@@ -108,7 +106,7 @@ Those might be graph-specific operations such as referencing or cloning a variab
 
 \begin{figure}[H]
     \centering
-    \includegraphics[height = 3.5cm]{figures/parse_trees/parseTree_graphManip}
+    \includegraphics[height = 5.5cm]{figures/parse_trees/parseTree_graphManip}
     \caption{The parse tree for some simple graph operations. The code parsed is \texttt{g\{
         ref a;
         ref b;
@@ -131,13 +129,30 @@ The if-else statement structure is quite classic.
 After the \texttt{if} keyword, a boolean expression is specified between parenthesis and then the block of code to execute is written between curly brackets.
 The following else clause is optional.
 
-\begin{lstlisting}[caption={test},captionpos=b, label={lst:teststuff}]
-    IfBlock
-\end{lstlisting}
+\begin{align*}
+    \omit $\mathit{IfBlock}$ \hfil &\rightarrow \mathit{IfClause} \: [\mathit{ElseClause}] \\
+    \omit $\mathit{IfClause}$ \hfil &\rightarrow \text{keywordIf} \: \text{leftParen} \: \mathit{BoolExpr} \: \text{rightParen} \: \text{leftBrace} \: \{ \mathit{statement}\} \: \text{rightBrace} \\
+    \omit $\mathit{ElseClause}$ \hfil &\rightarrow \text{keywordElse} \: \text{leftBrace} \: \{ \mathit{statement} \} \: \text{rightBrace} \\
+    \omit $\mathit{BoolExpr}$ \hfil &\rightarrow \text{opBNot} \: \mathit{BoolExpr} \\
+    & \mid \mathit{BoolExpr} \: \mathit{BoolOp} \: \mathit{BoolExpr} \\
+    & \mid \mathit{AssignVal} \: \mathit{CompOp} \: \mathit{AssignVal} \\
+    & \mid \text{leftParen} \: \mathit{BoolExpr} \: \text{RightParen} \\
+    & \mid \text{varID} \\
+    & \mid \mathit{FuncCall} \\
+    & \mid \mathit{BoolVal} \\
+    \omit $\mathit{BoolVal}$ \hfil & \rightarrow \text{keywordTrue} \\
+    & \mid \text{keywordFalse} \\
+    \omit $\mathit{BoolOp}$ \hfil &\rightarrow \text{opBAnd} \\
+    & \mid \text{opBOr} \\
+    \omit $\mathit{CompOp}$ \hfil & \rightarrow \text{opBEq} \\
+    & \mid \text{opBNeq} \\
+    & \mid \text{opBGrt}
+\end{align*}
+\captionedgrammar{Rules for if-else statements and boolean expressions}
 
 Since the boolean expression and the arithmetic expression are different, writing an arithmetic expression as the condition of an $\texttt{if}$ statement is a syntax error, not a type error that would be found by the type checker or a semantic error despite what some people might expect.
-This distinction also causes our grammar to be bigger complicating the implementation part.
-We still made the choice to write our grammar that way because the tool we use gives this grammar some redeeming qualities (\ref{TODO} (future ref))
+This distinction also causes our grammar to be bigger, complicating the implementation part.
+We still made the choice to write our grammar that way because this made the grammar ensure some type safety that didn't have to be implemented later and the ANLTR recognizer once again helped parse the inputs the correct way.
 
 \begin{figure}[H]
     \centering
@@ -180,7 +195,7 @@ The statement starts with the keyword \texttt{while} followed by the condition f
 
 \begin{figure}[H]
     \centering
-    \includegraphics[height = 5cm]{figures/parse_trees/parseTree_whileblock}
+    \includegraphics[height = 6.5cm]{figures/parse_trees/parseTree_whileblock}
     \caption{Parse tree for the following while statement with a more complex boolean expression that includes a function call : \texttt{while(c < 2 || !(isPrime(a)))\{
         a = 5;\}}}
     \label{fig:parseTree_whileblock}
