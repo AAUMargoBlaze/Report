@@ -10,7 +10,7 @@ we use must be capable of creating executables for such a wide variety of system
 In addition, as development time is significant, we should choose a language that provides sufficient tooling to
 minimise unnecessary development time.
 
-Our choice of compiler language is C#, due to its wide system compatibility and support of the~\cite{ANTLR} which we
+Our choice of compiler language is C\#, due to its wide system compatibility and support of the~\cite{ANTLR} which we
 will explore later.
 
 Next we have to decide what language to compile to, which entails similar considerations as the user will want an
@@ -19,7 +19,7 @@ For this decision we have taken a slightly different approach - in order to full
 to, we plan to support code injection - for this to remain convenient it's better to choose a language that more closely
 resembles the one we're translating from.
 
-In this train of thought, we have decided to compile to python, as it is a similarly high level language to the one
+In this train of thought, we have decided to compile to Python, as it is a similarly high level language to the one
 we are designing.
 
 \subsubsection{Compiler Tools}\label{subsubsec:compilertools}
@@ -29,7 +29,7 @@ maintaining support for more complex functionality.
 The main decision that had to be made was between ANTLR and leveraging the toolkit that intellij
 provides~\cite{IntellijLanguage}.
 After choosing ANTLR, we reasoned that we could take advantage of the parse tree that ANTLR creates for both debugging
-and traversal properties - as ANTLR creates an easily readable image displaying how the grammar operates.
+and traversal properties - as ANTLR creates an easily interpretable image displaying how the grammar operates.
 Furthermore, ANTLR introduces with it the listener pattern~\cite[p18]{ANTLRReference}
 
 The document describing the syntax and semantics of a language is referred to as a ``grammar''\cite{Grammars}, both

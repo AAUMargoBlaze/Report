@@ -6,7 +6,7 @@ compiler.
 
 \begin{itemize}
     \item Each variable must be declared before being assigned a value.
-    \item Each variable must have a unique name throughout the program, regardless of the scope.
+    \item Each variable must have a unique name within the relevant scope.
     \item Variables must be initialized with a value before they are accessed (for example in an expression or function call).
     \item The value assigned to a variable must be compatible with its declared type.
 \end{itemize}
@@ -28,6 +28,7 @@ compiler.
     \item The return statement is only allowed within the scope of a function.
     \item All functions must have unique names.
     \item The value returned by a function must match its declared return type.
+    \item Each function has a nullable return type.
     \end{itemize}
 
 \subsubsection{Graph contexts}
