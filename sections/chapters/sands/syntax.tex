@@ -1,7 +1,7 @@
 The most visible part of any language is its syntax.
 Each of us has a different background in terms of programming experience and preferences.
 Inadvertently this will introduce some bias in our decision-making, but our distinct preferences
-should counteract each others' biases.
+should counteract each other's biases.
 
 Moreover, basing our language on existing languages may be somewhat counterproductive.
 On one hand, creating a language that offers some familiarity to experienced programmers is a benefit,
@@ -81,7 +81,7 @@ Before introducing the core of Lattice - graphs, it is important to explicitly s
 such as variables and assignments.
 We have chosen to explicitly state the type of a variable at declaration,
 following the form of \lstinline{type var_name = value}.
-THe example listing~\ref{lst:syntax_basic_var_dec} shows how variables are declared in Lattice.
+The example listing~\ref{lst:syntax_basic_var_dec} shows how variables are declared in Lattice.
 
 We also settled on a set of primitive types we intend to implement, namely:
 \begin{itemize}
@@ -411,16 +411,16 @@ in Lattice, as its expressive power, is equivalent to any other constructs, such
 \end{lstlisting}
 
 
-We find that while loops alone were insufficient to enumerate graphs.
-Currently, there is no commonly accepted approach
-for such operations.
+We find that while loops alone are insufficient to loop over graph nodes, as nodes have no set order.
+Currently, there is no commonly accepted approach for such operations.
 
 Building a deterministic approach would be relatively easy.
 We could, for example, apply the operations on the nodes in which
 they were added.
 
-However, we believe that the nature of the answers point to the fact that traditional approaches are insufficient for graph
-enumeration.
+However, we believe that the nature of this solution point to the fact that traditional approaches are insufficient for
+graph enumeration, as they do not accurately approach the concept of what a graph is (a structure without inherent
+order).
 
 Therefore, we have decided to try a functional approach.
 Haskell's fmap fits our needs precisely.
